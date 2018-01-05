@@ -1,0 +1,286 @@
+/* 
+ *  Developer Uday Chandrashekara
+ *  Company : Oscki labs
+ *  This code is for clock of 4 digit 7 segment common anode
+ *  Board : arduino 
+ *  h1= pin 7 (1st hour digit Anode pin)
+ *  h2= pin 8  (2nd hour digit Anode pin)
+ *  m1= pin 9 (1st min digit Anode pin)
+ *  m2= pin 10  (2nd min digit Anode pin)
+ *  in case of bigger display each digits can be connected to a transistor can be connected to the digits and the above mentioned pin can control the transistor
+ *  
+ *  
+ *  all the 4 digits segments are connected to the pics as shown below         
+ *                 0
+ *           ____________
+ *          |            |
+ *        5 |            |   1
+ *          |      6     |
+ *          |____________|
+ *          |            |
+ *        4 |            |   2
+ *          |            |   
+ *          |____________|
+ *                3
+ *                
+ * 
+ *     Assuming the rtc is already updated this program is done
+ *     
+ *     
+ */
+
+// Date and time functions using a DS1307 RTC connected via I2C and Wire lib
+#include <Wire.h>
+#include "RTClib.h"
+
+// int 1st digit of hour
+int h1;
+// int 2nd digit of hour
+int h2;
+// int 1st digit of hour
+int m1;
+// int 2nd digit of hour
+int m2;
+int count=0;
+int count1=0;
+int count2=0;
+unsigned long sc1;
+unsigned long sc2;
+
+
+int ledstate=LOW;
+
+RTC_DS1307 rtc;
+
+void setup () {
+  while (!Serial); // for Leonardo/Micro/Zero
+
+//  Serial.begin(57600);
+ 
+  if (! rtc.begin()) {
+   
+    while (1);
+  }
+
+  if (! rtc.isrunning()) {
+  }
+  pinMode(11,OUTPUT);
+  digitalWrite(11,LOW);
+
+  for(int i=0;i<11;i++){
+    pinMode(i,OUTPUT);
+  }
+  for(int i=0;i<11;i++){
+    if(i<7){
+      digitalWrite(i,HIGH);
+    }
+    else{
+      digitalWrite(i,HIGH);
+    }
+  }
+  for ( int u=9;u>=0;u--){
+    for(unsigned long s=0;s<250;s++){
+        prints(u);
+        digitalWrite(7,LOW);
+        
+        delay(1);
+        digitalWrite(7,HIGH);
+        digitalWrite(8,LOW);
+       
+        delay(1);
+        digitalWrite(8,HIGH);
+        digitalWrite(9,LOW);
+      
+        delay(1);
+        digitalWrite(9,HIGH);
+        digitalWrite(10,LOW);
+     
+        delay(1);
+        digitalWrite(10,HIGH);
+    }
+  }
+  sc1=millis();
+}
+
+void DateTim (uint16_t yr, uint8_t mnh, uint8_t dy, uint8_t hr, uint8_t mn, uint8_t sc){
+  sc2=millis();
+
+  if((sc2-sc1)>=1000){
+    sc1=sc2;
+     if(ledstate==LOW){
+      ledstate=HIGH;
+     }
+     else{
+      ledstate=LOW;
+     }
+  }
+  digitalWrite(11,ledstate);
+
+  if(hr>12){
+    hr=hr-12;
+  }
+  h1=hr/10;
+  h2=hr%10;
+  m1=mn/10;
+  m2=mn%10;
+
+  prints(h1);
+  digitalWrite(7,LOW);
+  delay(2);
+  digitalWrite(7,HIGH);
+  prints(h2);
+  digitalWrite(8,LOW);
+  delay(2);
+  digitalWrite(8,HIGH);
+  prints(m1);
+  digitalWrite(9,LOW);
+  delay(2);
+  digitalWrite(9,HIGH);
+  prints(m2);
+  digitalWrite(10,LOW);
+  delay(2);
+  digitalWrite(10,HIGH);
+}
+
+void loop () {
+  if(count==0){
+    DateTime now = rtc.now();
+    DateTim(now.year(),now.month(),now.day(),now.hour(),now.minute(),now.second());
+  }
+  else{
+    
+  }
+}
+
+void prints(int var){
+  switch(var){
+    case 0:{
+      zero();
+      break;
+    }
+    case 1:{
+      one();
+      break;
+    }
+    case 2:{
+      two();
+      break;
+    }
+    case 3:{
+      three();
+      break;
+    }
+    case 4:{
+      four();
+      break;
+    }
+    case 5:{
+      five();
+      break;
+    }
+    case 6:{
+      six();
+      break;
+    }
+    case 7:{
+      seven();
+      break;
+    }
+    case 8:{
+      eight();
+      break;
+    }
+    case 9: {
+      nine();
+      break ;
+    }
+  }
+}
+
+void zero(){
+ for(int i=0;i<6;i++){
+  digitalWrite(i,LOW); 
+ }
+ digitalWrite(6,HIGH);
+}
+void one(){
+  digitalWrite(0,HIGH);
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+  digitalWrite(1,LOW);
+  digitalWrite(2,LOW);
+}
+void two(){
+  digitalWrite(2,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(1,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(0,LOW);
+}
+void three(){
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(1,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(0,LOW);
+}
+void four(){
+  digitalWrite(0,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(3,HIGH);
+  digitalWrite(1,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(5,LOW);
+}
+void five(){
+  digitalWrite(1,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(0,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+}
+void six(){
+  digitalWrite(1,HIGH);
+  digitalWrite(0,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+}
+void seven(){
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(3,HIGH);
+  digitalWrite(1,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(0,LOW);
+}
+void eight(){
+  digitalWrite(2,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(1,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(0,LOW);
+}
+void nine(){
+  digitalWrite(4,HIGH);
+  digitalWrite(0,LOW);
+  digitalWrite(1,LOW);
+  digitalWrite(2,LOW);
+  digitalWrite(3,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+}
